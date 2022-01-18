@@ -22,9 +22,6 @@ char buf1[BLK], buf2[BLK];
 int color = 0x0A;
 u8 ino;
 
- char *ctable = "0123456789ABCDEF";
- int  BASE = 10; 
-
 int prints(char *s)
 {
     while (*s)
@@ -67,11 +64,11 @@ prints_len(char *s, u8 len) {
 
 main()
 {
-    u16 i, j,iblk;
+    u16 i, iblk;
     char c, temp[64];
 
     prints("read block# 2 (GD)\n\r");
-    getblk((u16)2, buf1);
+    getblk(2, buf1);
     gp = (GD *)buf1;
     iblk = gp->bg_inode_table;// this an offset
     prints("Got iblk value\n\r");
@@ -83,51 +80,37 @@ main()
 
     // 2. WRITE YOUR CODE to get root inode
     prints("read inodes begin block to get root inode\n\r");
-    getblk((u16)iblk, buf1);
+    getblk(iblk, buf1);
     // add code for iget here basically
 
 
     // iblk = ( 2 - 1) / 8 + iblk;
 
     ip = (INODE *) buf1 + ( 2 - 1 ) % 8;
+
     // 3. WRITE YOUR CODE to step through the data block of root inode
     prints("read data block of root DIR\n\r");
+    //prints("first block # = ");
+    //putc(ip -> i_block[0] + '0');
 
+    //prints("\n\r");
 
-    // for( j = 0; j < 25; j++){
-    //     for (i = 0; i < 12; i ++) {
-
-    //         prints("Block value: ");
-    //         putc((u16)ip -> i_block[i] + '0');
-    //         prints("\n\r");
-
-    //         getc();
-    //     }
-    //     ip = (INODE *) buf1 + j;
-    // }
-    // prints("first block # = ");
-    // putc((u16)ip -> i_block[0] + '0');
-    // prints("\n\r");
-    // getc();
     
     for (i = 0; ip -> i_block[i]!= 0; i++) {
         prints("block # = ");
         putc(ip -> i_block[i] + '0');
         prints("\n\r");
-        // iblk =  (u16)ip -> i_block[i];
-        getblk((u16) ip -> i_block[i], buf2);
-        //getblk(iblk, buf2);
-        // getblk(21, buf2);
-        dp = (DIR * ) buf2;
-        while ((char *) dp < buf2 + BLK) {
 
-            prints_len(dp ->name, dp ->name_len);
-            prints(" ");
-            dp = (DIR *) ( (char *) dp + dp->rec_len);
-            getc();
+        // getblk( ip -> i_block[i], buf2);
+        //dp = (DIR * ) buf2;
+        // while ((char *) dp < buf2 + BLK) {
 
-        }
-        prints("\n\r");
+        //     prints_len(dp ->name, dp ->name_len);
+        //     dp = (DIR *) ( (char *) dp + dp->rec_len);
+        //     getc();
+
+        // }
+
 
         getc();
     }
