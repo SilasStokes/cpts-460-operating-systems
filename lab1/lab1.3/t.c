@@ -164,14 +164,20 @@ main()
 
 
     indirect_block = (u32 *) buf2;
+    // j = 0;
 
     while (*indirect_block != 0) {
         getblk((u16) *indirect_block, 0);
+        putc(' ');
         putc('-');
         inces();
         indirect_block ++;
+        j++;
     }
-
+    // putc(j + '0');
+    // i = j % 10; // num is 21, so this give us 1. 
+    // j = j / 10; // num is 21, so this give us 2.
+    // prints("num indirect blocks # = "); putc(j + '0');putc(i + '0'); prints("\n\r");
 
                                                              
 
@@ -196,7 +202,7 @@ main()
     // }
     // prints("\n\r");
 
-    // getc();
+    getc();
     
     // 4. print file names in the root directory /
     return 1;
