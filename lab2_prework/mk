@@ -1,0 +1,10 @@
+
+arm-none-eabi-as -o ts.o ts.s                       # assemble ts.s
+arm-none-eabi-gcc -c -mcpu=arm926ej-s t.c -o t.o    # compile t.c
+arm-none-eabi-ld -T t.ld ts.o t.o -o t.elf          # -T t.ld for image layout
+arm-none-eabi-nm t.elf                              # show ELF symbols
+arm-none-eabi-objcopy -O binary t.elf t.bin         # covert .elf to .bin
+
+rm *.o *.elf
+
+qemu-system-arm -M versatilepb -kernel t.bin -nographic -serial /dev/null

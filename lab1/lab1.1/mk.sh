@@ -13,4 +13,5 @@ dd if=a.out of=mtximage bs=1024 count=1 conv=notrunc
 
 rm *.o
 echo done
-qemu-system-i386 -fda mtximage -no-fd-bootchk
+qemu-system-i386 -fda mtximage -no-fd-bootchk # -nographic
+
