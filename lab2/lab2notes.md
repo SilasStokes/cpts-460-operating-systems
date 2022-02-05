@@ -14,3 +14,10 @@
 - KC annoyingly doesn't consistnently type urpu so sometimes you'll need to change rpu to urpu
 - in urpu, kc has hardcoded base 10, you'll have to make a variable for it.
 - when launching ./mk headless from ssh, add the -nographic flag. Once QEMU starts you can close it with "ctrl+a" and then "x"
+
+
+## Notes from the textbook:
+
+- io devices occupy a 2MB area beginning from 256 MB
+- 4 uart devices which are hard mapped to certain addresses. 
+    each has registers like data, flag, baud rate, 

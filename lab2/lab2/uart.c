@@ -1,4 +1,4 @@
-char *tab = "0123456789ABCDEF";
+char *CHARACTER_TABLE = "0123456789ABCDEF";
 #define DR 0x00
 #define FR 0x18
 

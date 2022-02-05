@@ -12,7 +12,7 @@ int urpu(UART *up, unsigned int x)
     char c;
     if (x)
     {
-        c = tab[x % BASE];
+        c = CHARACTER_TABLE[x % BASE];
         urpu(up, x / BASE);
         uputc(up, c);
     }
@@ -54,7 +54,7 @@ int uprintx(UART * up, int x)
     BASE = 10;
 }
 // char, string, unsigned int, int in DEC or HEX  to a UART port
-void ufprintf(UART * up, char *fmt, ...) {
+void uprintf(UART * up, char *fmt, ...) {
     int *ip = (int *) (&fmt + 1);
     char *cp = fmt;
     while (*cp) {
@@ -92,7 +92,7 @@ int main()
     up = &uart[0];
 
     uprints(up, "Enter lines from UART terminal, enter end to exit\n\r");
-    ufprintf(up, "cha=%c string=%s      dec=%d hex=%x oct=%o neg=%d\n",
+    uprintf(up, "cha=%c string=%s      dec=%d hex=%x oct=%o neg=%d\n",
 	          'A', "this is a test", 100,    100,   100,  -100);
     while (1)
     {
