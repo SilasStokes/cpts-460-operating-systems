@@ -1,0 +1,54 @@
+                    LAB3.1: Timer driver
+                DUE & DEMO: Friday,2-4-2022
+		   
+Download files from samples/LAB3.1:
+                    ts.s t.c vid.c timer.c type.h  mk t.ld
+which will be explaned in class. Listen to lecture
+
+=============================================================================
+The timer driver in timer.c generates 60 interrupts per second.
+It displays a   timer interrupt  line on the LCD every second.
+
+1. Per the timer driver in the book, display a wall-clock for timer 0
+
+2. Make the cursor flashing once every second.
+
+=============================================================================
+
+	        3. HOW TO do device I/O by interrupts:
+
+Submit a (text-edited) file of your answer to TA BEFORE demo time
+3.1. Device must be allowed to generate interrupts:
+    Q: Where and how (C code) did we enable timers to generate interrupts?
+    A:  The interrupts are enabled using *(VIC_BASE + VIC_INTENABLE) |= (1<<4);
+
+3.2. Device interrupts must be routed to IRQ input pin of CPU:
+
+    Q: Where and how (C code) and how did we route timer interrupts to CPU?
+    A:      in timer_init when we defined the offset from tp -> base 
+
+3.3. Device must be enabled to operate:
+
+    Q: Where and how did we enable timer 0 ?
+    A:      timer_init
+    Q: What would happen if we do NOT enable timer 0?
+    A:      There would be no interrupts
+
+3.4 CPU must have IRQ unmasked (CPSR.I_bit=1 mask out IRQ)
+
+    Q: Where and how did we let CPU run with IRQ unmasked?
+    A:      during the svc mode
+    Q: What happens if we  MSR cpsr, #0x93   then call main()? (TRY it!)
+    A:      The interrupts are turned off. 
+
+3.5. Must have an interrupt handler installed to handle timer interrupts:
+
+    (1). What does copy_vectors() do? WHY?
+        it sets up the exception vector table.
+
+    (2). CPU is excuting in a while(1); loop.
+        Show the control flow of CPU when a timer interrupt occurs:
+
+        while(1) => vectorTable.0x18 => irq_handler => irq_chandler => back to interrupted point
+
+Sorry jimmy - ran out of time while working on this. Had some other assignments due. 
