@@ -17,3 +17,6 @@ KC is going to explain the code
     - t.ld: when an interupt occurs we go to irq mode, thats what the second part of SECTIONS is:
     - ts.s :    svc_stack is an export symbol from the linker, that what is setting the stack location. 
                 0 to 64k 
+
+
+

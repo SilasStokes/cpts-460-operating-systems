@@ -1,0 +1,10 @@
+
+
+
+Silas Stokes
+1. Draw a diagram to show the control flow of the CPU when the kbd is pressed:
+
+(1) while(1) --> (2) a key is pressed --> (3) ts.s irq_handler is called --> (4) t.c IRQ_chandler() is called 
+
+(5) kbd_handler() is called --> (6) return to assembly irq_handler and restore program state  --> (7) kgetc() continues
+
