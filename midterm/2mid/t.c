@@ -24,11 +24,15 @@ char *status[] = {"FREE", "READY", "SLEEP", "ZOMBIE"};
 TIMER *tp[4];
 
 
+// questions:
+//      Why does kwait() take a status parameter when it removes the first zombie child
+// 
+
 /*******************************************************
   kfork() creates a child process; returns child pid.
   When scheduled to run, child PROC resumes to body();
 ********************************************************/
-int body(), pstswitch(), do_sleep(), do_wakeup(), do_exit(), do_switch();
+int body(), pstswitch(), do_sleep(), do_wakeup(), do_exit(), do_switch(), do_wait();
 int do_kfork();
 int scheduler();
 int ksleep(int event);
@@ -103,9 +107,9 @@ int init()
 
 int menu()
 {
-    printf("**********************************\n");
-    printf(" ps fork switch exit sleep wakeup \n");
-    printf("**********************************\n");
+    printf("***************************************\n");
+    printf(" ps switch fork sleep wakeup exit wait \n");
+    printf("***************************************\n");
 }
 
 
@@ -275,6 +279,15 @@ int do_exit()
     kexit(exitCode);
 }
 
+
+int do_wait()
+{
+    // int exitCode;
+    // printf("enter an exitCode value : ");
+    // exitCode = geti();
+    // kexit(exitCode);
+    kwait(0);
+}
 int do_sleep()
 {
     int event;

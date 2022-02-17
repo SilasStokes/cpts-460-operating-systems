@@ -5,7 +5,7 @@
 #define TVALUE  0x04/4
 #define TCNTL   0x08/4
 #define TINTCLR 0x0C/4
-#define TRIS    0x10/4
+#define TRIS0x10006000    0x10/4
 #define TMIS    0x14/4
 #define TBGLOAD 0x18/4
 

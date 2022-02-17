@@ -23,7 +23,7 @@ char *status[] = {"FREE", "READY", "SLEEP", "ZOMBIE"};
   kfork() creates a child process; returns child pid.
   When scheduled to run, child PROC resumes to body();
 ********************************************************/
-int body(), pstswitch(), do_sleep(), do_wakeup(), do_exit(), do_switch();
+int body(), pstswitch(), do_sleep(), do_wakeup(), do_wait(), do_exit(), do_switch();
 int do_kfork();
 int scheduler();
 int ksleep(int event);
@@ -96,9 +96,9 @@ int init()
 
 int menu()
 {
-    printf("**********************************\n");
-    printf(" ps fork switch exit sleep wakeup \n");
-    printf("**********************************\n");
+    printf("***************************************\n");
+    printf(" ps fork switch exit sleep wakeup wait\n");
+    printf("**************************************\n");
 }
 
 
@@ -191,6 +191,8 @@ int body() // process body function
             do_sleep();
         if (strcmp(cmd, "wakeup") == 0)
             do_wakeup();
+        if (strcmp(cmd, "wait") == 0)
+            do_wait();
     }
 }
 
@@ -198,6 +200,11 @@ void insert_process(){
 
 }
 
+int do_wait(){
+    // lock();
+    kwait(0);
+    // unlock();
+}
 
 
 int kfork() // kfork a child process to execute body() function

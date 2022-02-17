@@ -32,7 +32,7 @@ int printQ(PROC *p)
 {
   kprintf("readyQueue = ");
   while(p){
-    kprintf("[%d%d]->", p->pid,p->priority);
+    kprintf("[%d %d]->", p->pid,p->priority);
     p = p->next;
   }
   kprintf("NULL\n");
