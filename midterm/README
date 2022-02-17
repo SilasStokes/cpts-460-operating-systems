@@ -1,0 +1,11 @@
+1. mid1.bin is the solution of Problem #1
+
+2. mid2.bin is the solution of Problem #2.
+   P0 forks 5 processes, P1 to P5
+   When a process runs, just enter a timer value, e.g. 
+   20 
+   10 
+   5
+
+3. To run the images
+   q mid1.bin   OR   q mid2.bin
