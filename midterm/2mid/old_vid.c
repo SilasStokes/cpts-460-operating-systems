@@ -1,26 +1,37 @@
+// vid.c file: implement fbuf for the ARM PL110 LCD display
+/**************** Reference: ARM PL110 and DUI02241 ********************
+Color LCD base address: 0x10120000 - 0x1012FFFF
+00    timing0
+04    timing1
+08    timing2
+0C    timing3
+10    upperPanelframeBaseAddressRegister // use only ONE panel
+14    lowerPanelFrameBaseAddressRegister // some display allows 2 panels
+18    interruptMaskClrregister
+1C    controlRegister
+20    interruptStatusReg
+etc
+************************************************************************/
 #include "font0"
-char *tab = "0123456789ABCDEF";
-unsigned short cursor;
+
+char *tab = "0123456789ABCDF";
+u8 cursor;
 int volatile *fb;
 unsigned char *font;
 int row, col;
 extern int color;
-
 int fbuf_init()
 {
-    int x;
-    int i;
-
-    //********* for VGA 640x480 ************************
+    int x, i;
+    /********* for VGA 640x480 ************************/
     *(volatile unsigned int *)(0x1000001c) = 0x2C77;            // LCDCLK SYS_OSCCLK
     *(volatile unsigned int *)(0x10120000) = 0x3F1F3F9C;        // time0
     *(volatile unsigned int *)(0x10120004) = 0x090B61DF;        // time1
     *(volatile unsigned int *)(0x10120008) = 0x067F1800;        // time2
-    *(volatile unsigned int *)(0x10120010) = (1 * 1024 * 1024); // panelBaseAddress
-    *(volatile unsigned int *)(0x10120018) = 0x80B;             // 82B;  // control register
-    *(volatile unsigned int *)(0x1012001c) = 0x0;               // IntMaskRegister
-    fb = (int *)(1 * 1024 * 1024); // fbuf[] at 2MB area;
-    // fb = (int *)(2 * 1024 * 1024); // fbuf[] at 2MB area;
+    *(volatile unsigned int *)(0x10120010) = (2 * 1024 * 1024); // fbuf Address
+    *(volatile unsigned int *)(0x10120018) = 0x82B;             // control register
+
+    fb = (int *)(2 * 1024 * 1024); // fbuf[] at 2MB area;
     font = fonts0;                 // use fonts0 for char bitmap
 
     // for 640x480 VGA mode display
@@ -44,35 +55,51 @@ int setpix(int x, int y)
         fb[pix] = 0x00FF0000;
     if (color == GREEN)
         fb[pix] = 0x0000FF00;
-    if (color == CYAN)
-        fb[pix] = 0x00FFFF00;
-    if (color == YELLOW)
-        fb[pix] = 0x0000FFFF;
-    if (color == PURPLE)
-        fb[pix] = 0x00FF00FF;
     if (color == WHITE)
         fb[pix] = 0x00FFFFFF;
+    if (color == YELLOW)
+        fb[pix] = 0x0000FFFF;
+    if (color == CYAN)
+        fb[pix] = 0x00FFFF00;
 }
 
 int dchar(unsigned char c, int x, int y)
 {
     int r, bit;
     unsigned char *caddress, byte;
+
     caddress = font + c * 16;
 
     for (r = 0; r < 16; r++)
     {
         byte = *(caddress + r);
+
         for (bit = 0; bit < 8; bit++)
         {
-            clrpix(x + bit, y + r);
             if (byte & (1 << bit))
                 setpix(x + bit, y + r);
         }
     }
 }
 
-// undchar??
+int undchar(unsigned char c, int x, int y)
+{
+    int row, bit;
+    unsigned char *caddress, byte;
+
+    caddress = font + c * 16;
+
+    for (row = 0; row < 16; row++)
+    {
+        byte = *(caddress + row);
+
+        for (bit = 0; bit < 8; bit++)
+        {
+            if (byte & (1 << bit))
+                clrpix(x + bit, y + row);
+        }
+    }
+}
 
 int scroll()
 {
@@ -88,6 +115,7 @@ int kpchar(char c, int ro, int co)
     int x, y;
     x = co * 8;
     y = ro * 16;
+
     dchar(c, x, y);
 }
 
@@ -97,15 +125,15 @@ int unkpchar(char c, int ro, int co)
     x = co * 8;
     y = ro * 16;
 
-    dchar(c, x, y);
+    undchar(c, x, y);
 }
 
-int erasechar()
+int erasechar() // erase char at (row,col)
 {
     int r, bit, x, y;
+    unsigned char *caddress, byte;
     x = col * 8;
     y = row * 16;
-
     for (r = 0; r < 16; r++)
     {
         for (bit = 0; bit < 8; bit++)
@@ -117,13 +145,15 @@ int erasechar()
 
 int clrcursor()
 {
-    erasechar();
+    unkpchar(cursor, row, col);
 }
 
 int putcursor()
 {
     kpchar(cursor, row, col);
 }
+
+
 
 int kputc(char c)
 {
@@ -149,8 +179,8 @@ int kputc(char c)
     {
         if (col > 0)
         {
-            clrcursor();
             col--;
+            erasechar();
             putcursor();
         }
         return 0;
@@ -171,8 +201,6 @@ int kputc(char c)
     }
     putcursor();
 }
-
-
 int kputs(char *s)
 {
     while (*s)
@@ -185,118 +213,9 @@ int kputs(char *s)
 }
 
 
-int kprints(char *s)
-{
-    while (*s)
-    {
-        kputc(*s);
-        s++;
+void erase_timer() {
+    int i;
+    for(i = 0; i < 8; i++){
+        unkpchar(cursor, 0, 40 + i);
     }
-}
-
-int krpx(int x)
-{
-    char c;
-    if (x)
-    {
-        c = tab[x % 16];
-        krpx(x / 16);
-    }
-    if (c >= '0' && c <= '9' || c >= 'A' && c <= 'F')
-        kputc(c);
-}
-
-int kprintx(int x)
-{
-    kputc('0');
-    kputc('x');
-    if (x == 0)
-        kputc('0');
-    else
-        krpx(x);
-    kputc(' ');
-}
-
-int krpu(int x)
-{
-    char c;
-    if (x)
-    {
-        c = tab[x % 10];
-        krpu(x / 10);
-    }
-    if (c >= '0' && c <= '9')
-        kputc(c);
-}
-
-int kprintu(int x)
-{
-    if (x == 0)
-        kputc('0');
-    else
-        krpu(x);
-    kputc(' ');
-}
-
-int kprinti(int x)
-{
-    if (x < 0)
-    {
-        kputc('-');
-        x = -x;
-    }
-    kprintu(x);
-}
-
-int kprintf(char *fmt, ...)
-{
-    // color = BLUE;
-    int *ip;
-    char *cp;
-    cp = fmt;
-    ip = (int *)&fmt + 1;
-
-    while (*cp)
-    {
-        if (*cp != '%')
-        {
-            kputc(*cp);
-            if (*cp == '\n')
-                kputc('\r');
-            cp++;
-            continue;
-        }
-        cp++;
-        switch (*cp)
-        {
-        case 'c':
-            kputc((char)*ip);
-            break;
-        case 's':
-            kprints((char *)*ip);
-            break;
-        case 'd':
-            kprinti(*ip);
-            break;
-        case 'u':
-            kprintu(*ip);
-            break;
-        case 'x':
-            kprintx(*ip);
-            break;
-        }
-        cp++;
-        ip++;
-    }
-}
-
-int stestring(char *s)
-{
-    char c;
-    while ((c = kgetc()) != '\r')
-    {
-        *s = c;
-        s++;
-    }
-    *s = 0;
 }

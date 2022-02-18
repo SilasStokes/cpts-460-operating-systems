@@ -75,7 +75,8 @@ int kgetc()
     KBD *kp = &kbd;
 
     unlock(); // unmask IRQ in case it was masked out
-    while (kp->data == 0); // BUSY wait while kp->data is 0
+    while (kp->data == 0)
+        ; // BUSY wait while kp->data is 0
 
     lock(); // mask out IRQ
     typed_character = kp->buf[kp->tail++];

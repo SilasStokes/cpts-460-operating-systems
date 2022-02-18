@@ -1,5 +1,106 @@
 // queue.c file
 
+
+
+//////////////////////////////////////////////
+// TIMER QUEUE
+
+int enqueue_timer(TQE **queue, TQE *p)
+{
+  TQE *q  = *queue;
+  if (q==0){
+    *queue = p;
+    p->next = 0;
+    return 0;
+  }
+  if ((*queue)->time < p->time){
+    p->next = *queue;
+    *queue = p;
+    return 0;
+  }
+  while (q->next && p->time <= q->next->time){
+    q = q->next;
+  }
+  p->next = q->next;
+  q->next = p;
+}
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////
+
+
+void removeprocess(PROC * p){
+    PROC * parent = p -> parent;
+    if (parent -> child == p){
+        if (p -> sibling == 0)
+            parent -> child = 0;
+        else{
+            parent -> child = p -> sibling;
+
+        }
+
+    } else{
+        PROC * pchild = parent -> child;
+        while (pchild -> sibling != p){
+            pchild = pchild-> sibling;
+        }
+        pchild -> sibling = pchild -> sibling -> sibling;
+
+    }
+
+    p -> parent = 0;
+    p -> sibling = 0;
+    p -> child = 0;
+
+}
+
+
+
+
+void printsibings(PROC * p) {
+     printf("\n         |\n         ");   
+    while (p){
+        printf("P%d -> ", p -> pid);
+        p = p->sibling;
+    }
+    printf("NULL\n\n");
+}
+
+
+void printtree(PROC * p) {
+
+    if (p == 0) return;
+    
+    printf("Parent: \tP%d:", p -> pid);
+    if (p -> child == 0 && p -> sibling == 0){
+        printf(" no children or siblings\n", p -> pid);
+        return;
+    } else if (p -> child == 0 ){
+        printf(" no children\n");
+    }
+    else{
+        printsibings(p -> child);
+    }
+    printtree(p->sibling);
+    if (p -> child != 0) {
+        printf("Press Enter To Continue:\n");
+        kgetc();
+    }
+    printtree(p -> child);
+}
+
+
+
+
 int enqueue(PROC **queue, PROC *p)
 {
   PROC *q  = *queue;

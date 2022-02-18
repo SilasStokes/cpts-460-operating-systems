@@ -1,4 +1,4 @@
-.text
+	.text
 .code 32
 
 .global reset_handler
