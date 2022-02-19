@@ -95,51 +95,6 @@ void timer_init()
     }
 }
 
-    // int lo = ip -> i_block[0] % 10; // num is 21, so this give us 1. 
-    // int hi = ip -> i_block[0] / 10; // num is 21, so this give us 2.
-
-
-// void timer_handler(int n)
-// {
-
-//     TIMER *t = &timer[n];
-
-//     // t->tick++;
-    
-//     if (t->tick == 60)
-//     {   
-//         int sslo = t-> ss % 10; // num is 21, so this give us 1. 
-//         int sshi = t-> ss / 10; // num is 21, so this give us 2.
-//         int hhlo = t-> hh % 10; // num is 21, so this give us 1. 
-//         int hhhi = t-> hh / 10; // num is 21, so this give us 2.
-//         int mmlo = t-> mm % 10; // num is 21, so this give us 1. 
-//         int mmhi = t-> mm / 10; // num is 21, so this give us 2.
-//         erase_timer();
-//         // unkpchar( (u8)127, 0, 40);
-//         // unkpchar(sslo +'0', 0,40);
-//         // unkpchar(sslo + '0', 0, 41);
-//         t->tick = 0;
-//         t -> ss++;
-//         if (t -> ss == 60){
-//             t -> ss = 0;
-//         }
-//         //   kpchar('a', 0, 40);
-//         // undchar( '0', 0, 40);
-
-//         kpchar(hhhi + '0', 0, 40);
-//         kpchar(hhlo + '0', 0, 41);
-//         kpchar(':', 0,42);
-//         kpchar(mmhi + '0', 0, 43);
-//         kpchar(mmlo + '0', 0, 44);
-//         kpchar(':', 0,45);
-//         kpchar(sshi + '0', 0, 46);
-//         kpchar(sslo + '0', 0, 47);
-//         kputs("timer interrupt\n");
-//     }
-
-//     timer_clearInterrupt(n);
-// }
-
 int printTimerQueue(char *name, TQE *p)
 {
   kprintf("%s = ", name);
@@ -153,14 +108,18 @@ int printTimerQueue(char *name, TQE *p)
 
 void decr_timer_queue(){
     printf("decrementing timer queue\n");
-    TQE *q = timequeue;
+    TQE *q =  timequeue;
     q -> time -= 1;
 
     if (q -> time == 0) {
+        qdequeue(&timequeue);
+       
         kwakeup( (int)q -> proc);
-        timequeue = 0;
+
+        // timequeue = 0;
         // dequeue
     } else {
+        
         printTimerQueue("Time queue", q);
     }
 

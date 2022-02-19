@@ -41,7 +41,7 @@ int ksleep(int event);
 
 int kwakeup(int event);
 int kexit(int exitValue);
-int kwait(int *status);
+int kwait(int status);
 int kfork();
 
 // assembly functions:
@@ -86,6 +86,11 @@ int main()
     printQ(readyQueue);
     kfork(); // kfork P1 into readyQueue
 
+    // making a lot of child processes:
+    kfork();
+    kfork();
+    kfork();
+    kfork();
     unlock();
   
 
@@ -103,48 +108,47 @@ int main()
     }
 }
 
-int kwait(int *status)
-{
-    PROC *p = (PROC *)status;
-    if (p->child == 0)
-    {
+int kwait(int status){
+    PROC * p = (PROC *)status;
+    if ( p -> child == 0){
+        kprintf("Cannot wait bc no children\n");
         return -1;
     }
 
-    while (1)
-    {
-        PROC *child = p->child;
+    while(1){
+        PROC * childptr = p -> child;
 
-        while (child)
-        {
-            if (child->status == ZOMBIE)
-            {
-                int pid = child->pid;
-                p->status = child->exitCode;
-                child->status = FREE;
+        while (childptr) {
+            if (childptr -> status == ZOMBIE) {
+                int pid = childptr -> pid;
+                p -> status = childptr -> exitCode;
+                childptr -> status = FREE;
                 // remove from tree?
-                removeprocess(child);
-                enqueue(&freeList, child);
+                removeprocess(childptr);
+                enqueue(&freeList, childptr);
                 return pid;
             }
 
-            child = child->sibling;
+            childptr = childptr -> sibling;
         }
         ksleep(running);
     }
+
 }
+
 int kwakeup(int event)
 {
+    kprintf("KWAKEUP CALLED ON EVENT: %d", event);
     // PROC *p = &p[0];
     int currentprogramstatusregister = int_off();
 
     int i = 0;
-    for (i = 0; i < NPROC; i++)
-    {
-        if (proc[i].status == SLEEP && proc[i].event == event)
-        {
+    for (i = 0; i < NPROC; i ++){
+        if (proc[i].status == SLEEP && proc[i].event == event){
+            kprintf("IN KWAKEUP, FOUND: P%d", proc[i].sibling);
             proc[i].status = READY;
             dequeue(&sleepList);
+            proc[i].priority = 2;
             enqueue(&readyQueue, &proc[i]);
             // enqueue(&proc[i]);
         }
@@ -153,6 +157,7 @@ int kwakeup(int event)
     int_on(currentprogramstatusregister);
     // printf("kwakeup: under construction\n");
 }
+
 /**
  * 1.   erase process user -mode context e.g close file descriptors,
  *      release resources, deallocatre user-mode image memory etc..
@@ -173,33 +178,33 @@ int kexit(int exitValue)
     printf("proc %d in kexit(), value=%d\n", running->pid, exitValue);
     // 2. dispose of childre, if any
 
-    if (running->child != 0)
-    {
-        PROC *childptr = running->child;
-        PROC *parentptr = running->parent;
+    if (running -> child != 0) {
+        PROC * childptr = running -> child;
+        PROC * parentptr = running -> parent;
+        running -> child = 0;
 
-        // append running children to the parent's children linked list
-        PROC *parentsibptr = parentptr->child;
-        while (parentsibptr->sibling != 0)
-        {
-            parentsibptr = parentsibptr->sibling;
+        PROC* cursibptr = running; //-> sibling;
+        while (cursibptr -> sibling != 0){
+            cursibptr = cursibptr -> sibling;
         }
-        parentptr->sibling = childptr;
+        cursibptr -> sibling = childptr;
 
         // change the running -> children's parent pointer to running -> parent
-        while (childptr)
-        {
-            childptr->parent = parentptr;
-            childptr->ppid = parentptr->pid;
-            childptr = childptr->sibling;
+        while(childptr){
+            childptr -> parent = parentptr;
+            childptr -> ppid = parentptr -> pid;
+            childptr = childptr -> sibling;
         }
+
     }
+
 
     running->exitCode = exitValue;
     running->status = ZOMBIE;
     kwakeup((int)running->parent);
     tswitch();
 }
+
 int ksleep(int event)
 {
     int SR = int_off();
@@ -226,7 +231,13 @@ int scheduler()
     color = running->pid;
 }
 
-
+int queueIndex(){
+    int i = 0;
+    for (i = 0; i < NPROC; i++)  {
+        if (timearray[i].proc == 0) return i;
+    }
+    return -1;
+}
 
 int body() // process body function
 {
@@ -246,7 +257,11 @@ int body() // process body function
 
         gets(cmd);
         int delay = atoi(cmd);
-        TQE *q = &timearray[0];
+        int index = queueIndex();
+        if (index == -1){
+            printf("ERROR: no timer queue slots available");
+        }
+        TQE *q = &timearray[index]; 
         q -> time = delay;
         q -> proc = running;
         enqueue_timer(&timequeue, q);
@@ -278,6 +293,7 @@ int kfork() // kfork a child process to execute body() function
         kprintf("kfork failed\n");
         return -1;
     }
+    kprintf("kforking on P%d\n", p -> pid);
     p->ppid = running->pid; // set ppid
     p->parent = running;    // set parent PROC pointer
     p->child = 0;
@@ -370,7 +386,7 @@ int do_wait()
     // printf("enter an exitCode value : ");
     // exitCode = geti();
     // kexit(exitCode);
-    kwait(0);
+    kwait((int) running);
 }
 int do_sleep()
 {
