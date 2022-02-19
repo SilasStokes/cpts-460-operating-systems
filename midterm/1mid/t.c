@@ -23,14 +23,18 @@ char *status[] = {"FREE", "READY", "SLEEP", "ZOMBIE"};
   kfork() creates a child process; returns child pid.
   When scheduled to run, child PROC resumes to body();
 ********************************************************/
-int body(), pstswitch(), do_sleep(), do_wakeup(), do_wait(), do_exit(), do_switch();
+int body(), do_sleep(), do_wakeup(), do_wait(), do_exit(), do_switch();
 int do_kfork();
 int scheduler();
 int ksleep(int event);
 
+extern int tswitch();
+extern int int_on();
+extern int int_off();
+
 int kwakeup(int event);
 int kexit(int exitValue);
-int kwait(int *status);
+int kwait(int status);
 int kprintf(char *fmt, ...);
 
 void copy_vectors(void)
@@ -202,7 +206,7 @@ void insert_process(){
 
 int do_wait(){
     // lock();
-    kwait(0);
+    kwait( (int)running);
     // unlock();
 }
 
@@ -337,7 +341,7 @@ int scheduler()
 }
 
 
-int tswitch();
+// int tswitch();
 
 
 void removeprocess(PROC * p){
@@ -366,27 +370,28 @@ void removeprocess(PROC * p){
 }
 
 
-int kwait(int *status){
+int kwait(int status){
     PROC * p = (PROC *)status;
     if ( p -> child == 0){
+        kprintf("Cannot wait bc no children\n");
         return -1;
     }
 
     while(1){
-        PROC * child = p -> child;
+        PROC * childptr = p -> child;
 
-        while (child) {
-            if (child -> status == ZOMBIE) {
-                int pid = child -> pid;
-                p -> status = child -> exitCode;
-                child -> status = FREE;
+        while (childptr) {
+            if (childptr -> status == ZOMBIE) {
+                int pid = childptr -> pid;
+                p -> status = childptr -> exitCode;
+                childptr -> status = FREE;
                 // remove from tree?
-                removeprocess(child);
-                enqueue(&freeList, child);
+                removeprocess(childptr);
+                enqueue(&freeList, childptr);
                 return pid;
             }
 
-            child = child -> sibling;
+            childptr = childptr -> sibling;
         }
         ksleep(running);
     }
@@ -407,14 +412,17 @@ int ksleep(int event)
 
 int kwakeup(int event)
 {
+    kprintf("KWAKEUP CALLED ON EVENT: %d", event);
     // PROC *p = &p[0];
     int currentprogramstatusregister = int_off();
 
     int i = 0;
     for (i = 0; i < NPROC; i ++){
         if (proc[i].status == SLEEP && proc[i].event == event){
+            kprintf("IN KWAKEUP, FOUND: P%d", proc[i].sibling);
             proc[i].status = READY;
             dequeue(&sleepList);
+            proc[i].priority = 2;
             enqueue(&readyQueue, &proc[i]);
             // enqueue(&proc[i]);
         }
@@ -447,13 +455,13 @@ int kexit(int exitValue)
     if (running -> child != 0) {
         PROC * childptr = running -> child;
         PROC * parentptr = running -> parent;
+        running -> child = 0;
 
-        // append running children to the parent's children linked list
-        PROC * parentsibptr = parentptr -> child;
-        while (parentsibptr -> sibling != 0) {
-            parentsibptr = parentsibptr -> sibling;
+        PROC* cursibptr = running; //-> sibling;
+        while (cursibptr -> sibling != 0){
+            cursibptr = cursibptr -> sibling;
         }
-        parentptr -> sibling = childptr;
+        cursibptr -> sibling = childptr;
 
         // change the running -> children's parent pointer to running -> parent
         while(childptr){
