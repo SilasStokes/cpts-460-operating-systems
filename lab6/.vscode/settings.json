@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "type.h": "c",
+        "kbd.h": "c",
+        "sdc.h": "c",
+        "kernel.h": "c"
+    }
+}
