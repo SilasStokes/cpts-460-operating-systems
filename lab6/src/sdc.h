@@ -2,6 +2,7 @@
 #ifndef SDC_H
 #define SDC_H
 #include "type.h"
+#include "functions.h"
 
 
 #define COMMAND_REG_DELAY	300
@@ -219,19 +220,19 @@
 
 // u32 base;  //SDC base addres in I/O map
 
-int do_command(int cmd, int arg, int resp);
+// int do_command(int cmd, int arg, int resp);
 
-// shared variables between SDC driver and interrupt handler
-char *rxbuf, *txbuf;
-int  rxcount, txcount, rxdone, txdone;
+// // shared variables between SDC driver and interrupt handler
+// char *rxbuf, *txbuf;
+// int  rxcount, txcount, rxdone, txdone;
 
-int sdc_handler();
+// int sdc_handler();
 
-int sdc_init();
+// int sdc_init();
 
-int getblock(int blk, char *buf);
+// int getblock(int blk, char *buf);
 
-int putblock(int blk, char *buf);
+// int putblock(int blk, char *buf);
 
 
 

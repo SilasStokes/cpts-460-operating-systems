@@ -2,6 +2,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 #include "type.h"
+#include "functions.h"
 
 // timer.c file
 /***** timer confiuguration values *****/
@@ -41,19 +42,19 @@ volatile TIMER timer[4];  // 4 timers; 2 timers per unit; at 0x00 and 0x20
 
 
 
-int kprintf(char *fmt, ...);
-int kpchar(char, int, int);
-int unkpchar(char, int, int);
+// int kprintf(char *fmt, ...);
+// int kpchar(char, int, int);
+// int unkpchar(char, int, int);
 
-void timer_init();
+// void timer_init();
 
-void timer_handler(int n);
+// void timer_handler(int n);
 
-void timer_start(int n);
+// void timer_start(int n);
 
-int timer_clearInterrupt(int n);
+// int timer_clearInterrupt(int n);
 
-void timer_stop(int n);
+// void timer_stop(int n);
 
 
 #endif

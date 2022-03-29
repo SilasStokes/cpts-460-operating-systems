@@ -22,17 +22,17 @@
 // 
 // extern PROC *kfork();
 
-int init();
-extern int scheduler();
+// int init();
+// extern int scheduler();
 
 
-int kgetpid();
+// int kgetpid();
 
-int kgetppid();
-int kps();
-int kchname(char *s);
+// int kgetppid();
+// int kps();
+// int kchname(char *s);
 
-int kgetPA();
+// int kgetPA();
 
 
 #endif

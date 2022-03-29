@@ -1,9 +1,9 @@
 #ifndef KBD_H
 #define KBD_H
-#include "type.h"
+#include "functions.h"
 
-#include "keymap"
-#include "keymap2"
+#include "assets/keymap"
+#include "assets/keymap2"
 
 #define LSHIFT 0x12
 #define RSHIFT 0x59
@@ -30,7 +30,7 @@ typedef volatile struct kbd{
   int head, tail, data, room;
 }KBD;
 
-int kputc(char);
+// int kputc(char);
 
 volatile KBD kbd;
 int shifted = 0;
@@ -38,25 +38,5 @@ int release = 0;
 int control = 0;
 volatile int kline;
 volatile int keyset;
-
-int kbd_init();
-
-// kbd_handler1() for scan code set 1
-void kbd_handler1();
-
-// kbd_handelr2() for scan code set 2
-void kbd_handler2();
-
-void kbd_handler();
-
-
-int kgetc();
-
-int kgets(char s[ ]);
-
-int getc() ;
-int kgetline(char s[ ]);
-
-
 
 #endif

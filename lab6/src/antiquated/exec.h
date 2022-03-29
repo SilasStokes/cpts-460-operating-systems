@@ -5,6 +5,6 @@
 #include "type.h"
 // #include "globals.h"
 
-int exec(char *cmdline);
+// int exec(char *cmdline);
 
 #endif

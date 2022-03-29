@@ -13,10 +13,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ********************************************************************/
-#include "fork.h"
+#include "functions.h"
 
 // int goUmode();
-// char *istring = "init start";
+// Should this be static to say it's only global to this file
+char *istring = "init start";
 
 PROC *kfork(char *filename)
 {
@@ -78,11 +79,11 @@ PROC *kfork(char *filename)
     if (load(filename, p) < 0)
     {
         printf("loading %s failed\n", filename);
-        return -1;
+        return (PROC *)0;
     }
 
     // ustack at high end of Umode image: put a string there
-    char *s = (p->pgdir[2048] & 0xFFFF000) + 0x100000 - 128;
+    char *s = (char *)(p->pgdir[2048] & 0xFFFF000) + 0x100000 - 128;
     strcpy(s, istring);
     printf("s=%x string=%s\n", s, s);
 
@@ -112,24 +113,54 @@ PROC *kfork(char *filename)
 
 // }
 
+
 int fork()
 {
     int i;
     char *PA, *CA;
-    PROC *p = get_proc(&freeList);
+    int *ptable, pentry;
+
+    PROC *p = dequeue(&freeList);
     if (p == 0)
     {
-        printf("fork failed\n");
-        return -1;
+        kprintf("kfork failed\n");
+        return 0;
     }
+    p->ppid = running->pid;
+    p->parent = running;
+    p->status = READY;
+    p->priority = 1;
+
+    // 1-level paging by 1MB sections
+    // build level-1 pgtable for p at 6MB + (pid-1)*16KB
+    p->pgdir = (int *)(0x600000 + (p->pid - 1) * 0x4000); // must be on 16KB boundary
+
+    ptable = p->pgdir;
+    for (i = 0; i < 4096; i++) // clear ptable entries
+        ptable[i] = 0;
+
+    // Kmode: ptable[0-257] ID map to 258 PA, Kmode RW but no Umode RW
+    pentry = 0x412; // 0x412 = |AP|0|DOMA|1|CB10|=|01|0|0000|1|0010|
+    for (i = 0; i < 258; i++)
+    {
+        ptable[i] = pentry;
+        pentry += 0x100000;
+    }
+
+    // Umode: ptable[2048] map to 1MB PA of proc at 8MB, 9MB, etc by pid
+    //|     addr     | |       |AP|0|DOM1|1|CB|10|
+    // 0xC12 = 1100 0001 0010 =|11|0|0001|1|00|10|       // AP=11 for Umode RW
+    ptable[2048] = (0x800000 + (p->pid - 1) * 0x100000) | 0xC32; // entry 2048 | 0xC32
+
     p->ppid = running->pid;
     p->parent = running;
     p->status = READY;
     p->priority = 1;
     PA = (char *)(running->pgdir[2048] & 0xFFFF0000); // parent Umode PA
     CA = (char *)(p->pgdir[2048] & 0xFFFF0000);       // child Umode PA
-    memcpy(CA, PA, 0x100000);                         // copy 1MB Umode image
-    for (i = 1; i <= 14; i++)                         // copy bottom 14 entries of kstack
+
+    memcpy(CA, PA, 0x100000); // copy 1MB Umode image
+    for (i = 1; i <= 14; i++) // copy bottom 14 entries of kstack
     {
         p->kstack[SSIZE - i] = running->kstack[SSIZE - i];
     }
@@ -137,7 +168,7 @@ int fork()
     p->kstack[SSIZE - 15] = (int)goUmode; // child resumes to goUmode
     p->ksp = &(p->kstack[SSIZE - 28]);    // child saves ksp
     p->usp = running->usp;                // same usp as parent
-    p->cpsr = running->cpsr;            // same spsr as parents
+    p->cpsr = running->cpsr;              // same spsr as parents
     enqueue(&readyQueue, p);
     return p->pid;
 }

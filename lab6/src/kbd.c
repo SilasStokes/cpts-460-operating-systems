@@ -1,5 +1,5 @@
 
-
+#include "functions.h"
 #include "kbd.h"
 
 int kbd_init()

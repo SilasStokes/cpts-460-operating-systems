@@ -1,0 +1,31 @@
+arm-none-eabi-ld: ts.o: in function `tswitch':
+(.text+0xcc): undefined reference to `scheduler'
+arm-none-eabi-ld: ts.o: in function `svc_entry':
+(.text+0x12c): undefined reference to `svc_handler'
+arm-none-eabi-ld: ts.o: in function `undef_handler_addr':
+(.text+0x1dc): undefined reference to `undef_handler'
+arm-none-eabi-ld: ts.o: in function `prefetch_abort_handler_addr':
+(.text+0x1e4): undefined reference to `prefetch_abort_handler'
+arm-none-eabi-ld: ts.o: in function `fiq_handler_addr':
+(.text+0x1f0): undefined reference to `fiq_handler'
+arm-none-eabi-ld: t.o: in function `DATA_handler':
+t.c:(.text+0x138): undefined reference to `kprintf'
+arm-none-eabi-ld: t.o: in function `IRQ_handler':
+t.c:(.text+0x180): undefined reference to `timer_handler'
+arm-none-eabi-ld: t.c:(.text+0x198): undefined reference to `uart_handler'
+arm-none-eabi-ld: t.c:(.text+0x1b0): undefined reference to `uart_handler'
+arm-none-eabi-ld: t.c:(.text+0x1d0): undefined reference to `kbd_handler'
+arm-none-eabi-ld: t.c:(.text+0x1e4): undefined reference to `sdc_handler'
+arm-none-eabi-ld: t.o: in function `main':
+t.c:(.text+0x244): undefined reference to `fbuf_init'
+arm-none-eabi-ld: t.c:(.text+0x24c): undefined reference to `kprintf'
+arm-none-eabi-ld: t.c:(.text+0x260): undefined reference to `kprintf'
+arm-none-eabi-ld: t.c:(.text+0x270): undefined reference to `kbd_init'
+arm-none-eabi-ld: t.c:(.text+0x314): undefined reference to `timer_init'
+arm-none-eabi-ld: t.c:(.text+0x31c): undefined reference to `timer_start'
+arm-none-eabi-ld: t.c:(.text+0x320): undefined reference to `uart_init'
+arm-none-eabi-ld: t.c:(.text+0x32c): undefined reference to `sdc_init'
+arm-none-eabi-ld: t.c:(.text+0x330): undefined reference to `init'
+arm-none-eabi-ld: t.c:(.text+0x338): undefined reference to `kfork'
+arm-none-eabi-ld: t.c:(.text+0x340): undefined reference to `kprintf'
+arm-none-eabi-ld: t.c:(.text+0x34c): undefined reference to `kgetline'

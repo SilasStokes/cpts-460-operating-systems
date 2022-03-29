@@ -1,5 +1,5 @@
 
-#include "svc.h"
+#include "functions.h"
 
 int svc_handler(volatile int a, int b, int c, int d)
 {
@@ -11,7 +11,7 @@ int svc_handler(volatile int a, int b, int c, int d)
      case 1: r = kgetppid(); break;
      case 2: r = kps(); break;
      case 3: r = kchname((char *)b); break;
-     case 4: r = kfork(b); break;
+     case 4: r = (int)kfork((char *)b); break;
      case 5: r = tswitch(); break;
      case 6: r = kwait((int *)b); break;
      case 7: r = kexit(b); break;
@@ -20,7 +20,7 @@ int svc_handler(volatile int a, int b, int c, int d)
      case 10: r = exec((char *)b); break;
 
      case 90: r = kgetc() & 0x7F;  break;
-     case 91: r = kputc(b); break;
+     case 91: r = kputc((char) b); break;
      case 92: r = kgetPA(); break;
      default: printf("invalid syscall %d\n", a);
   }

@@ -1,32 +1,48 @@
-/********************************************************************
-Copyright 2010-2017 K.C. Wang, <kwang@eecs.wsu.edu>
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-********************************************************************/
-@ extern copy_vectors
+@ .extern scheduler                 // kernel.c*
+@ .extern svc_handler               // svc.c*
+@ .extern undef_handler             // exceptions.c
+@ .extern prefetch_abort_handler    // exceptions.c
+@ .extern fiq_handler               // exceptions.c
+@ .extern timer_handler             // timer.c*
+@ .extern kprintf                   // vid.c*
 
-#include "kernel.h"
-#include "svc.h"
+
+@ #include "kernel.h"
+@ #include "svc.h"
+@ #include "functions.h"
+@ #include "kernel.c"
+@ C Functions Used:
+@       - scheduler                 // kernel.c
+@       - svc_handler               // svc.c
+@       - undef_handler             // exceptions.c
+@       - prefetch_abort_handler    // exceptions.c
+@       - fiq_handler               // exceptions.c
+@       - timer_handler             // timer.c
+@       - kprintf                   // vid.c
+@       - copy_vectors              // t.c
+
+// .asm symbols
+@ reset_handler_addr:          .word reset_handler
+@ undef_handler_addr:          .word undef_handler
+@ svc_handler_addr:            .word svc_entry
+@ prefetch_abort_handler_addr: .word prefetch_abort_handler
+@ data_abort_handler_addr:     .word data_handler
+@ irq_handler_addr:            .word irq_handler
+@ fiq_handler_addr:            .word fiq_handler
+
 
 	.text
 .code 32
-// globl says these are c functions
 .global reset_handler
 .global vectors_start, vectors_end
 .global proc, procsize
-.global tswitch, scheduler, running, goUmode
+.global tswitch, running, goUmode
 .global int_on, int_off, lock, unlock, getcsr
 .global switchPgdir
+
+//
 
 @ .extern reset_handler
 @ .extern vectors_start, vectors_end

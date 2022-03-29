@@ -1,5 +1,5 @@
 
-#include "load.h"
+#include "functions.h"
 
 int bmap, imap, iblk, blk, offset;
 int bootino, mtxino;

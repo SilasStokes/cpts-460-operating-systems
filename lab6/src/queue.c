@@ -1,6 +1,6 @@
 
 // extern PROC *freeList;
-#include "queue.h"
+#include "functions.h"
 
 PROC *getproc()
 {
@@ -23,13 +23,14 @@ int enqueue(PROC **queue, PROC *p)
   if (q==0 || p->priority > q->priority){
     *queue = p;
     p->next = q;
-    return;
+    return 0;
   }
   while (q->next && p->priority <= q->next->priority){
     q = q->next;
   }
   p->next = q->next;
   q->next = p;
+  return 0;
 }
 
 PROC *dequeue(PROC **queue)
@@ -48,6 +49,7 @@ int printQ(PROC *p)
     p = p->next;
   }
   kprintf("NULL\n");
+  return 0;
 }
 
 int printSleepList(PROC *p)
@@ -68,4 +70,5 @@ int printList(PROC *p)
      p = p->next;
   }
   kprintf("NULL\n"); 
+  return 0;
 }

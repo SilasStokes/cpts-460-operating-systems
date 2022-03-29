@@ -6,12 +6,12 @@
 // need running
 
 // not sure what these are doing
-int goUmode();
-char *istring = "init start";
+// int goUmode();
+// char *istring = "init start";
 
 
-PROC *kfork(char *filename);
+// PROC *kfork(char *filename);
 
-int fork();
+// int fork();
 
 #endif

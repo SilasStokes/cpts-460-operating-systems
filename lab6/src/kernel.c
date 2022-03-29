@@ -1,5 +1,5 @@
 
-#include "kernel.h"
+#include "functions.h"
 /********************
 #define  SSIZE 1024
 #define  NPROC  9
@@ -37,88 +37,91 @@ typedef struct proc{
 //                      "saturn","uranus","neptune"};
 int init()
 {
-  int i, j; 
-  PROC *p; 
+    int i, j;
+    PROC *p;
 
-  kprintf("kernel_init()\n");
-  for (i=0; i<NPROC; i++){
-    p = &proc[i];
-    p->pid = i;
-    p->status = FREE;
-    p->priority = 0;
-    p->ppid = 0;
-    strcpy(p->name, pname[i]);
-    p->next = p + 1;
-  }
-  proc[NPROC-1].next = 0;
-  freeList = &proc[0];
-  readyQueue = 0;
-  sleepList = 0;
-  
-  // creat P0 as running
-  running = getproc();
-  running->status = READY;
-  running->pgdir = 0x4000;   // P0's pgdir at 16KB
-  
-  printList(freeList);
-  printQ(readyQueue);
-  //kprintf("running = %d\n", running->pid);
+    kprintf("kernel_init()\n");
+    for (i = 0; i < NPROC; i++)
+    {
+        p = &proc[i];
+        p->pid = i;
+        p->status = FREE;
+        p->priority = 0;
+        p->ppid = 0;
+        strcpy(p->name, pname[i]);
+        p->next = p + 1;
+    }
+    proc[NPROC - 1].next = 0;
+    freeList = &proc[0];
+    readyQueue = 0;
+    sleepList = 0;
+
+    // creat P0 as running
+    running = getproc();
+    running->status = READY;
+    running->pgdir =(int *) 0x4000; // P0's pgdir at 16KB
+
+    printList(freeList);
+    printQ(readyQueue);
+    //kprintf("running = %d\n", running->pid);
 }
 
-// int scheduler()
-// {
-//   PROC *old=running;
+int scheduler()
+{
+    PROC *old = running;
 
-//   kprintf("proc %d in scheduler\n", running->pid);
-//   if (running->status==READY)
-//      enqueue(&readyQueue, running);
-//   printQ(readyQueue);
-//   running = dequeue(&readyQueue);
+    kprintf("proc %d in scheduler\n", running->pid);
+    if (running->status == READY)
+        enqueue(&readyQueue, running);
+    printQ(readyQueue);
+    running = dequeue(&readyQueue);
 
-//   kprintf("next running = %d\n", running->pid);
-//   color = running->pid;
+    kprintf("next running = %d\n", running->pid);
+    color = running->pid;
 
-//   // must switch to new running's pgdir; possibly need also flush TLB
-//   if (running != old){
-//     printf("switch to proc %d pgdir at %x ", running->pid, running->pgdir);
-//     printf("pgdir[2048] = %x\n", running->pgdir[2048]);
-//     switchPgdir((u32)running->pgdir);
-//   }
-// }  
-
+    // must switch to new running's pgdir; possibly need also flush TLB
+    if (running != old)
+    {
+        printf("switch to proc %d pgdir at %x ", running->pid, running->pgdir);
+        printf("pgdir[2048] = %x\n", running->pgdir[2048]);
+        switchPgdir((u32)running->pgdir);
+    }
+}
 
 int kgetpid()
 {
-  return running->pid;
+    return running->pid;
 }
 
 int kgetppid()
 {
-  return running->ppid;
+    return running->ppid;
 }
-char *pstatus[]={"FREE   ","READY  ","SLEEP  ","BLOCK  ","ZOMBIE ", " RUN  "};
+// char *pstatus[] = {"FREE   ", "READY  ", "SLEEP  ", "BLOCK  ", "ZOMBIE ", " RUN  "};
 int kps()
 {
-  int i; PROC *p; 
-  for (i=0; i<NPROC; i++){
-     p = &proc[i];
-     kprintf("proc[%d]: pid=%d ppid=%d", i, p->pid, p->ppid);
-     if (p==running)
-       printf("%s ", pstatus[5]);
-     else
-       printf("%s", pstatus[p->status]);
-     printf("name=%s\n", p->name);
-  }
+    int i;
+    PROC *p;
+    for (i = 0; i < NPROC; i++)
+    {
+        p = &proc[i];
+        kprintf("proc[%d]: pid=%d ppid=%d", i, p->pid, p->ppid);
+        if (p == running)
+            printf("%s ", pstatus[5]);
+        else
+            printf("%s", pstatus[p->status]);
+        printf("name=%s\n", p->name);
+    }
 }
 
 int kchname(char *s)
-{ 
-  kprintf("kchname: name=%s\n", s);
-  strcpy(running->name, s);
-  return 123;
+{
+    kprintf("kchname: name=%s\n", s);
+    strcpy(running->name, s);
+    return 123;
 }
 
 int kgetPA()
 {
-  return running->pgdir[2048]&0xFFFFF000;
+    return running->pgdir[2048] & 0xFFFFF000;
 }

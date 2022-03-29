@@ -13,8 +13,9 @@ Color LCD base address: 0x10120000 - 0x1012FFFF
 20    interruptStatusReg
 etc
 ************************************************************************/
-// #include "font0"
-#include "vid.h"
+// #include "assets/font0"
+#include "functions.h"
+#include "assets/font0"
 
 // u8 cursor;
 // int volatile *fb;
@@ -284,7 +285,7 @@ int krpu(u32 x)
 {
   char c;
   if (x==0) 
-     return;
+     return 0;
   c = tab[x % 10];
   krpu(x / 10);
   kputc(c);
@@ -313,33 +314,33 @@ int kprinti(int x)
   return 0;
 }
 
-int kprintf(char *fmt,...)
-{
-  int *ip;
-  char *cp;
-  cp = fmt;
-  ip = (int *)&fmt + 1;
+// int kprintf(char *fmt,...)
+// {
+//   int *ip;
+//   char *cp;
+//   cp = fmt;
+//   ip = (int *)&fmt + 1;
 
-  while(*cp){
-    if (*cp != '%'){
-      kputc(*cp);
-      if (*cp=='\n')
-	kputc('\r');
-      cp++;
-      continue;
-    }
-    cp++;
-    switch(*cp){
-    case 'c': kputc((char)*ip);      break;
-    case 's': kprints((char *)*ip);  break;
-    case 'd': kprinti(*ip);          break;
-    case 'u': kprintu(*ip);          break;
-    case 'x': kprintx(*ip);          break;
-    }
-    cp++; ip++;
-  }
-  return 0;
-}
+//   while(*cp){
+//     if (*cp != '%'){
+//       kputc(*cp);
+//       if (*cp=='\n')
+// 	kputc('\r');
+//       cp++;
+//       continue;
+//     }
+//     cp++;
+//     switch(*cp){
+//     case 'c': kputc((char)*ip);      break;
+//     case 's': kprints((char *)*ip);  break;
+//     case 'd': kprinti(*ip);          break;
+//     case 'u': kprintu(*ip);          break;
+//     case 'x': kprintx(*ip);          break;
+//     }
+//     cp++; ip++;
+//   }
+//   return 0;
+// }
 
 int stestring(char *s)
 {

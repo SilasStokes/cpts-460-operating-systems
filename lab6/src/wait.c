@@ -1,5 +1,5 @@
 
-#include "wait.h"
+#include "functions.h"
 
 int ksleep(int event)
 {

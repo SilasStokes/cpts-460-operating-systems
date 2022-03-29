@@ -10,9 +10,9 @@
 
 // int bsector;
 
-int search(INODE *ip, char *name);
+// int search(INODE *ip, char *name);
 
-int load(char *filename, PROC *p);
+// int load(char *filename, PROC *p);
 
 #endif
 

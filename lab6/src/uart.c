@@ -100,7 +100,7 @@ int do_tx(UART *up)
     // disable TX interrupt; return
     *(up->base+IMSC) = 0x10; // mask out TX interrupt
     up->txon = 0;
-    return;
+    return 0;
   }
   c = up->outbuf[up->outtail++];
   up->outtail %= 128;
@@ -136,7 +136,7 @@ int uputc(UART *up, char c)
     int_off();
      up->outdata++; up->outroom--;
     int_on();
-    return;
+    return 0;
   }
 
   // txon==0 means TX is off => output c & enable TX interrupt
@@ -266,5 +266,6 @@ int uprintf(char *fmt, ...)
     }
     cp++; ip++;
   }
+  return 0;
 }
 
