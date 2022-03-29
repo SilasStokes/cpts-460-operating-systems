@@ -15,6 +15,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ********************************************************************/
 @ extern copy_vectors
 
+#include "kernel.h"
+#include "svc.h"
+
 	.text
 .code 32
 // globl says these are c functions
