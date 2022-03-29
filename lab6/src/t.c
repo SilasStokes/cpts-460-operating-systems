@@ -1,11 +1,9 @@
 
 #include "type.h"
 #include "functions.h"
-// #include "exceptions.c"
 
 
 // file order matters
-// unconventional, most people use make and then compile seperately and the link
 #include "uart.c"
 #include "string.c"
 #include "kbd.c"
@@ -20,49 +18,6 @@
 #include "svc.c"
 #include "sdc.c"
 #include "load.c"
-
-// int kputc(char);
-int kprintf(char *fmt, ...)
-{
-    int *ip;
-    char *cp;
-    cp = fmt;
-    ip = (int *)&fmt + 1;
-
-    while (*cp)
-    {
-        if (*cp != '%')
-        {
-            kputc(*cp);
-            if (*cp == '\n')
-                kputc('\r');
-            cp++;
-            continue;
-        }
-        cp++;
-        switch (*cp)
-        {
-        case 'c':
-            kputc((char)*ip);
-            break;
-        case 's':
-            kprints((char *)*ip);
-            break;
-        case 'd':
-            kprinti(*ip);
-            break;
-        case 'u':
-            kprintu(*ip);
-            break;
-        case 'x':
-            kprintx(*ip);
-            break;
-        }
-        cp++;
-        ip++;
-    }
-    return 0;
-}
 
 void copy_vectors(void)
 {

@@ -314,33 +314,33 @@ int kprinti(int x)
   return 0;
 }
 
-// int kprintf(char *fmt,...)
-// {
-//   int *ip;
-//   char *cp;
-//   cp = fmt;
-//   ip = (int *)&fmt + 1;
+int kprintf(char *fmt,...)
+{
+  int *ip;
+  char *cp;
+  cp = fmt;
+  ip = (int *)&fmt + 1;
 
-//   while(*cp){
-//     if (*cp != '%'){
-//       kputc(*cp);
-//       if (*cp=='\n')
-// 	kputc('\r');
-//       cp++;
-//       continue;
-//     }
-//     cp++;
-//     switch(*cp){
-//     case 'c': kputc((char)*ip);      break;
-//     case 's': kprints((char *)*ip);  break;
-//     case 'd': kprinti(*ip);          break;
-//     case 'u': kprintu(*ip);          break;
-//     case 'x': kprintx(*ip);          break;
-//     }
-//     cp++; ip++;
-//   }
-//   return 0;
-// }
+  while(*cp){
+    if (*cp != '%'){
+      kputc(*cp);
+      if (*cp=='\n')
+	kputc('\r');
+      cp++;
+      continue;
+    }
+    cp++;
+    switch(*cp){
+    case 'c': kputc((char)*ip);      break;
+    case 's': kprints((char *)*ip);  break;
+    case 'd': kprinti(*ip);          break;
+    case 'u': kprintu(*ip);          break;
+    case 'x': kprintx(*ip);          break;
+    }
+    cp++; ip++;
+  }
+  return 0;
+}
 
 int stestring(char *s)
 {
