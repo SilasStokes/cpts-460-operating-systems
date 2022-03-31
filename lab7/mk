@@ -1,0 +1,25 @@
+#! /bin/bash
+#mkramdisk    # create a ramdisk image file
+(cd USER; sudo ./mku u1; sudo ./mku u2)
+
+# compiling 
+cd src
+# read -p "arm-none-eabi-as -mcpu=arm926ej-s ts.s -o ts.o"
+arm-none-eabi-as -mcpu=arm926ej-s ts.s -o ts.o
+
+# can compile to multiple object files
+# read -p "arm-none-eabi-gcc -c -mcpu=arm926ej-s t.c -o t.o"
+arm-none-eabi-gcc -c -mcpu=arm926ej-s t.c -o t.o
+
+# read -p "arm-none-eabi-ld -T t.ld ts.o t.o -Ttext=0x10000 -o t.elf"
+arm-none-eabi-ld -T t.ld ts.o t.o -Ttext=0x10000 -o t.elf
+
+# read -p "arm-none-eabi-objcopy -O binary t.elf t.bin"
+arm-none-eabi-objcopy -O binary t.elf t.bin
+
+rm *.o *.elf
+
+echo ready to go?
+read dummy
+
+qemu-system-arm -M versatilepb -m 256M -sd ../diskimages/sdimage -kernel t.bin -serial mon:stdio
