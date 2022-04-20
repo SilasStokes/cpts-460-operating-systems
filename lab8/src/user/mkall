@@ -1,0 +1,6 @@
+#! /bin/bash
+
+sudo ./mku u1
+sudo ./mku fe
+# sudo ./mku init
+# sudo ./mku sh
