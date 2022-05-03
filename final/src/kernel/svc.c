@@ -17,57 +17,69 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../type.h"
 
 // missing functions:
-int vfork() { printf("kernel: vfork not yet implemented\n"); }
-int sbrk() {}
-int page_out() {}
-int getesp() {}
-int ptable() {}
+int vfork(){printf("kernel: vfork not yet implemented\n"); }
+int sbrk(){ }
+int page_out(){ }
+int getesp(){ }
+int ptable(){ }
 int kitimer();
-int kcdSector() {}
-int do_cmd() {}
-int kcolor() {}
+int kcdSector(){ }
+int do_cmd(){ }
+int kcolor(){ }
 
 /*********************************************************************
                     syscall routing table
 *********************************************************************/
-extern int  getpid(),
-            getppid(), getpri(), ksetpri(), getuid(), kchuid(), kswitch(),
-            fork(), exec(), kwait(), vfork(), kthread(), kmutex_creat(), kmutex_lock(),
-            kmutex_unlock(), kmutex_destroy(), kmkdir(), krmdir(), kcreat(), klink(),
-            kunlink(), ksymlink(), kreadlink(), kchdir(), kgetcwd(), kstat(), kfstat(),
-            kopen(), kclose(), klseek(), kread(), kwrite(), kpipe(), kchmod(), kchown(),
-            ktouch(), ksettty(), kgettty(), kdup(), kdup2(), kps(), kmount(), kumount(),
-            kcdSector(), do_cmd(), kkill(), ksignal(), kpause(), kitimer(), ksend(),
-            krecv(), ktjoin(), ktexit(), khits(), kcolor(), ksync(), khits(), kexit(),
-            kgetPaddress(), thinit(), sbrk(), page_out(), ptable(), kfe();
-
-int getphypage(int *y, int *z) {}
+extern int 
+getpid(), getppid(), getpri(), ksetpri(), getuid(), kchuid(), kswitch(),
+fork(), exec(), kwait(), vfork(),  kthread(), kmutex_creat(), kmutex_lock(), 
+kmutex_unlock(), kmutex_destroy(), kmkdir(), krmdir(), kcreat(), klink(), 
+kunlink(), ksymlink(), kreadlink(), kchdir(), kgetcwd(), kstat(), kfstat(), 
+kopen(), kclose(), klseek(), kread(), kwrite(), kpipe(), kchmod(), kchown(), 
+ktouch(), ksettty(), kgettty(), kdup(), kdup2(), kps(), kmount(), kumount(), 
+kcdSector(), do_cmd(), kkill(), ksignal(), kpause(), kitimer(), ksend(), 
+krecv(), ktjoin(), ktexit(), khits(), kcolor(), ksync(), khits(), kexit(),
+kgetPaddress(), thinit(), sbrk(), page_out(), ptable();
+int getphypage(int *y, int *z){ }
 
 extern int nocall();
-//fork,     kexec,     kwait,     kgetPaddress,  kthread,
-int (*f[])() = {
-    getpid, getppid, getpri, ksetpri, getuid,
-    kchuid, kswitch, nocall, nocall, kexit,
+  //fork,     kexec,     kwait,     kgetPaddress,  kthread, 
+int (*f[ ])() = {
+//0         1          2          3         4
+  getpid,   getppid,   getpri,    ksetpri,  getuid,
+//5         6           7           8       9 
+  kchuid,   kswitch,   nocall,    nocall,   kexit,
 
-    fork, exec, kwait, vfork, kthread,
-    kmutex_creat, kmutex_lock, kmutex_unlock, kmutex_destroy, nocall,
+//10        11      12              13      14  
+  fork,     exec,      kwait,     vfork,    kthread, 
+//15            16          17              18              19
+  kmutex_creat, kmutex_lock, kmutex_unlock, kmutex_destroy, nocall,
+  
+//20        21          22          23      24
+  kmkdir,   krmdir,    kcreat,    klink,    kunlink, 
+//25        26          27          28      29
+  ksymlink, kreadlink, kchdir,    kgetcwd,  kstat, 
 
-    kmkdir, krmdir, kcreat, klink, kunlink,
-    ksymlink, kreadlink, kchdir, kgetcwd, kstat,
+//30        31      32              33      34
+  kfstat,   kopen,     kclose,    klseek,   kread, 
+//35        36          37          38      39
+  kwrite,   kpipe,     kchmod,    kchown,   ktouch,
 
-    kfstat, kopen, kclose, klseek, kread,
-    kwrite, kpipe, kchmod, kchown, ktouch,
+//40        41          42      43          44
+  ksettty,  kgettty,   kdup,      kdup2,    kps, 
+// 45       46          47          48      49
+  kmount,   kumount,   kcdSector, do_cmd,   nocall, 
 
-    ksettty, kgettty, kdup, kdup2, kps,
-    kmount, kumount, kcdSector, do_cmd, nocall,
+//50        51          52          53      54  
+  kkill,    ksignal,   kpause,    kitimer,  ksend, 
+//55        56          57          58      59  
+  krecv,    ktjoin,    ktexit,    khits,    kcolor,   
 
-    kkill, ksignal, kpause, kitimer, ksend,
-    krecv, ktjoin, ktexit, khits, kcolor,
-
-    ksync, kps, thinit, sbrk, page_out,
-    getphypage, ptable, kgetPaddress, kfe,
-   
-    };
+//60        61          62          63      64
+  ksync,    kps,       thinit,    sbrk,     page_out,
+//65                    66
+  getphypage,ptable,   kgetPaddress
+}; 
 
 /***************************************************************************
 ARM: syscall = swi # in Umode ==> SVC vector: LDR PC svc_handler_addr (svc_enty)
@@ -90,29 +102,27 @@ goUmode:
    ldmfd sp!, {r0-r12, pc}^   // ^ : pop kstack AND to previous mode
 ***************************************************************************/
 
-int svc_handler(volatile int a, int b, int c, int d)
+int svc_handler(volatile int a, int b, int c, int d) 
 {
-    int r;
-    //  printf("proc%d svc call %d\n", running->pid, a);
+  int r;
+  //  printf("proc%d svc call %d\n", running->pid, a);
+  
+  if (running->res->signal)
+     kpsig();
 
-    if (running->res->signal)
-        kpsig();
+  unlock();
+ 
+  if (a > 67){ // number of syscalls
+    printf("invlaid syscall no=%d\n", a);
+    return -1;
+  }
 
-    unlock();
+  r = (*f[a])(b, c, d);     // call the syscall function
 
-    if (a > 69)
-    { // number of syscalls
-        printf("invlaid syscall no=%d\n", a);
-        return -1;
-    }
+  if (running->res->signal){  // check and handle signal
+      printf("%d has signal ", running->pid);
+      kpsig();
+  }
 
-    r = (*f[a])(b, c, d); // call the syscall function
-
-    if (running->res->signal)
-    { // check and handle signal
-        printf("%d has signal ", running->pid);
-        kpsig();
-    }
-
-    return r; // return to ts.s ==> replace R0 in kstack as r to Umode
+  return r;  // return to ts.s ==> replace R0 in kstack as r to Umode
 }

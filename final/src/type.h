@@ -15,6 +15,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ********************************************************************/
 
 // type.h file
+#ifndef TYPE_H
+#define TYPE_H
 
 typedef unsigned char  u8;
 typedef unsigned short u16;
@@ -430,7 +432,7 @@ extern OFT  oft[NOFT];
 extern PIPE pipe[NPIPE];
 
 extern u32 *MTABLE;
-extern int kstrcpy();
+// extern int kstrcpy();
 extern PROC *getproc();
 extern int putproc();
 extern int enqueue();
@@ -520,3 +522,5 @@ extern MINODE *iget();
 
 extern PROC *running;
 #define HD     3
+
+#endif

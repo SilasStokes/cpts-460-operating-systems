@@ -1,4 +1,4 @@
-#include "functions.h"
+// #include "functions.h"
 
 #include "string.c"
 #include "uio.c"
@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
   char line[64]; char uc;
 
   a = 123; b = 234; c = 345;
+
   mode = getcsr();
   mode = mode & (0x0000001F);
   printf("CPU mode=%x argc=%d\n", mode, argc);
