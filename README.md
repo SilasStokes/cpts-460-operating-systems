@@ -1,4 +1,4 @@
-#CS460
+# CS460
 Repo used while taking cpts-460 at WSU spring 2022
 
 Course website: https://eecs.wsu.edu/~cs460/
